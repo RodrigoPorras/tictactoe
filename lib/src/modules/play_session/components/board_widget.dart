@@ -25,7 +25,7 @@ class BoardWidget extends StatelessWidget {
           currentBoard[0].length,
           (y) => GestureDetector(
             onTap: () => onSquareSelected.call(x, y),
-            child: SquareWidget(squareValue: currentBoard[x][y]),
+            child: SquareWidget(assetName: currentBoard[x][y]),
           ),
         ).toList();
       },

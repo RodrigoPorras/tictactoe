@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tictactoe/src/modules/play_session/components/board_widget.dart';
 import 'package:tictactoe/src/modules/play_session/controllers/game_controller.dart';
+import 'package:tictactoe/src/modules/play_session/models/enums.dart';
+import 'package:tictactoe/src/res/dimens.dart';
+import 'package:tictactoe/src/res/palette.dart';
 
 class PlaySessionView extends StatelessWidget {
   const PlaySessionView({super.key});
@@ -16,28 +19,59 @@ class PlaySessionView extends StatelessWidget {
         final gameController = context.watch<GameController>();
         return Material(
           child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
               children: [
-                Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    circularButton('Jugador 1 O'),
-                    const SizedBox(width: 20.0),
-                    circularButton('Jugador 2 X')
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        roundedButton(
+                          'Jugador 1 O',
+                          gameController.playerTurn == Turn.player1,
+                        ),
+                        sizedBoxW20,
+                        roundedButton(
+                          'Jugador 2 X',
+                          gameController.playerTurn == Turn.player2,
+                        )
+                      ],
+                    ),
+                    sizedBoxH44,
+                    GestureDetector(
+                      onTap: gameController.restartGame,
+                      child: Text(
+                        gameController.gameState == GameState.playing
+                            ? 'Reiniciar'
+                            : 'Inicia la partida',
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                    ),
+                    sizedBoxH56,
+                    if (!gameController.gameState.isWinOrTie())
+                      Center(
+                        child: BoardWidget(
+                          currentBoard: gameController.board,
+                          onSquareSelected:
+                              context.read<GameController>().squareWasPressed,
+                        ),
+                      )
+                    else
+                      const Spacer(flex: 3),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.all(22.0),
+                      child: Image.asset('assets/png/pragma.png'),
+                    )
                   ],
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Inicia la partida'),
-                ),
-                Center(
-                  child: BoardWidget(
-                    currentBoard: gameController.board,
-                    onSquareSelected:
-                        context.read<GameController>().squareWasPressed,
-                  ),
-                ),
+                if (gameController.gameState.isWinOrTie())
+                  tieOrWinPopUp(
+                    isWin: gameController.gameState == GameState.win,
+                    (gameController.playerTurn.index + 1).toString(),
+                  )
               ],
             ),
           ),
@@ -46,16 +80,50 @@ class PlaySessionView extends StatelessWidget {
     );
   }
 
-  Widget circularButton(String label) {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(100.0), // Establecer el radio deseado
+  Widget tieOrWinPopUp(String playerWin, {required bool isWin}) {
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        decoration: BoxDecoration(
+          color: palette.container,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        margin: const EdgeInsets.all(33),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.account_circle_rounded,
+              size: 30,
+            ),
+            sizedBoxW9,
+            Flexible(
+              child: Text(
+                isWin ? 'Ganador Jugador $playerWin' : 'Empate',
+                style: const TextStyle(fontSize: 55),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
-      child: Text(label),
+    );
+  }
+
+  Widget roundedButton(String label, bool enable) {
+    return ElevatedButton(
+      onPressed: enable ? () {} : null,
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(100.0),
+        ),
+        disabledBackgroundColor: palette.disableButton,
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 16),
+      ),
     );
   }
 }
