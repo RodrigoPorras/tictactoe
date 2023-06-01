@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tictactoe/src/config/audio/audio_controller.dart';
+import 'package:tictactoe/src/config/audio/sounds.dart';
 import 'package:tictactoe/src/modules/play_session/components/board_widget.dart';
 import 'package:tictactoe/src/modules/play_session/controllers/game_controller.dart';
 import 'package:tictactoe/src/modules/play_session/models/enums.dart';
@@ -11,72 +13,72 @@ class PlaySessionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => GameController())
-      ],
-      child: Builder(builder: (context) {
-        final gameController = context.watch<GameController>();
-        return Material(
-          child: SafeArea(
-            child: Stack(
+    final audioController = context.read<AudioController>();
+    final gameController = context.watch<GameController>();
+
+    return Material(
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Column(
+                const Spacer(),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        roundedButton(
-                          'Jugador 1 O',
-                          gameController.playerTurn == Turn.player1,
-                        ),
-                        sizedBoxW20,
-                        roundedButton(
-                          'Jugador 2 X',
-                          gameController.playerTurn == Turn.player2,
-                        )
-                      ],
+                    roundedButton(
+                      'Jugador 1 O',
+                      gameController.playerTurn == Turn.player1,
                     ),
-                    sizedBoxH44,
-                    GestureDetector(
-                      onTap: gameController.restartGame,
-                      child: Text(
-                        gameController.gameState == GameState.playing
-                            ? 'Reiniciar'
-                            : 'Inicia la partida',
-                        style: const TextStyle(fontSize: 24),
-                      ),
-                    ),
-                    sizedBoxH56,
-                    if (!gameController.gameState.isWinOrTie())
-                      Center(
-                        child: BoardWidget(
-                          currentBoard: gameController.board,
-                          onSquareSelected:
-                              context.read<GameController>().squareWasPressed,
-                        ),
-                      )
-                    else
-                      const Spacer(flex: 3),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.all(22.0),
-                      child: Image.asset('assets/png/pragma.png'),
+                    sizedBoxW20,
+                    roundedButton(
+                      'Jugador 2 X',
+                      gameController.playerTurn == Turn.player2,
                     )
                   ],
                 ),
-                if (gameController.gameState.isWinOrTie())
-                  tieOrWinPopUp(
-                    isWin: gameController.gameState == GameState.win,
-                    (gameController.playerTurn.index + 1).toString(),
+                sizedBoxH44,
+                GestureDetector(
+                  onTap: () {
+                    audioController.playSfx(SfxType.buttonTap);
+                    gameController.restartGame();
+                  },
+                  child: Text(
+                    gameController.gameState == GameState.playing
+                        ? 'Reiniciar'
+                        : 'Inicia la partida',
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                ),
+                sizedBoxH56,
+                if (!gameController.gameState.isWinOrTie())
+                  Center(
+                    child: BoardWidget(
+                      currentBoard: gameController.board,
+                      onSquareSelected: (x, y) {
+                        audioController.playSfx(SfxType.squareTap);
+                        gameController.squareWasPressed(x, y);
+                      },
+                    ),
                   )
+                else
+                  const Spacer(flex: 3),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(22.0),
+                  child: Image.asset('assets/png/pragma.png'),
+                )
               ],
             ),
-          ),
-        );
-      }),
+            if (gameController.gameState.isWinOrTie())
+              tieOrWinPopUp(
+                isWin: gameController.gameState == GameState.win,
+                (gameController.playerTurn.index + 1).toString(),
+              )
+          ],
+        ),
+      ),
     );
   }
 
