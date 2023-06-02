@@ -15,11 +15,20 @@ class AudioController {
 
   int _currentSfxPlayer = 0;
 
+  WidgetsBindingObserver? widgetsBindingObserver;
+
   AudioController()
       : _musicPlayer = AudioPlayer(),
         _playlist = Queue.of(List<Song>.of(songs)..shuffle()),
         _sfxPlayers = [AudioPlayer(), AudioPlayer()] {
     _musicPlayer.onPlayerComplete.listen(_changeSong);
+    widgetsBindingObserver = LifecycleObserver(
+      onPaused: () {
+        playSfx(SfxType.squareTap);
+        _pauseMusic();
+      },
+      onResume: _resumeMusic,
+    );
   }
 
   void playSfx(SfxType type) {
@@ -36,15 +45,11 @@ class AudioController {
   }
 
   void listenAppLifecycleChanges() {
-    WidgetsBinding.instance.addObserver(
-      LifecycleObserver(
-        onPaused: () {
-          playSfx(SfxType.squareTap);
-          _pauseMusic();
-        },
-        onResume: _resumeMusic,
-      ),
-    );
+    if (widgetsBindingObserver != null) {
+      WidgetsBinding.instance.addObserver(
+        widgetsBindingObserver!,
+      );
+    }
   }
 
   void _startMusic() {
@@ -65,15 +70,6 @@ class AudioController {
     }
   }
 
-  void _stopAllSound() {
-    if (_musicPlayer.state == PlayerState.playing) {
-      _musicPlayer.pause();
-    }
-    for (final player in _sfxPlayers) {
-      player.stop();
-    }
-  }
-
   Future<void> _playFirstSongInPlaylist() async {
     await _musicPlayer.play(
       AssetSource('music/${_playlist.first.filename}'),
@@ -90,6 +86,11 @@ class AudioController {
     _musicPlayer.dispose();
     for (final player in _sfxPlayers) {
       player.dispose();
+    }
+    if (widgetsBindingObserver != null) {
+      WidgetsBinding.instance.removeObserver(
+        widgetsBindingObserver!,
+      );
     }
   }
 }

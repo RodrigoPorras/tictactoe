@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
         Provider(
           lazy: false,
           create: (context) => AudioController()..initialize(),
+          dispose: (context, audio) => audio.dispose(),
         ),
         ChangeNotifierProvider(create: (context) => GameController()),
       ],
