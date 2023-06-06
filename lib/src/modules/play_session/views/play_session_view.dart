@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tictactoe/src/config/audio/audio_controller.dart';
+import 'package:tictactoe/src/config/audio/providers/audio_controller_provider.dart';
 import 'package:tictactoe/src/config/audio/sounds.dart';
 import 'package:tictactoe/src/modules/play_session/components/board_widget.dart';
-import 'package:tictactoe/src/modules/play_session/controllers/game_controller.dart';
 import 'package:tictactoe/src/modules/play_session/models/enums.dart';
+import 'package:tictactoe/src/modules/play_session/providers/game_controller_provider.dart';
 import 'package:tictactoe/src/res/dimens.dart';
 import 'package:tictactoe/src/res/palette.dart';
 
@@ -13,8 +12,10 @@ class PlaySessionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final audioController = context.read<AudioController>();
-    final gameController = context.watch<GameController>();
+    final audioController =
+        AudioControllerProvider.of(context)!.audioController;
+
+    final gameController = GameControllerProvider.of(context)!.gameController;
 
     return Material(
       child: SafeArea(

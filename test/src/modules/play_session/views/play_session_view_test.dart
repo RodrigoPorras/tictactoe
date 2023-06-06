@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:provider/provider.dart';
-import 'package:tictactoe/src/config/audio/audio_controller.dart';
+import 'package:tictactoe/src/config/audio/providers/audio_controller_provider.dart';
 import 'package:tictactoe/src/modules/play_session/components/board_widget.dart';
 import 'package:tictactoe/src/modules/play_session/components/square_widget.dart';
-import 'package:tictactoe/src/modules/play_session/controllers/game_controller.dart';
 import 'package:tictactoe/src/modules/play_session/models/enums.dart';
+import 'package:tictactoe/src/modules/play_session/providers/game_controller_provider.dart';
 import 'package:tictactoe/src/modules/play_session/views/play_session_view.dart';
 
 import '../../../../mocks/mocks.mocks.dart';
@@ -23,16 +22,16 @@ void main() {
 
     MaterialApp getApp() {
       return MaterialApp(
-        home: MultiProvider(
-          providers: [
-            Provider<AudioController>.value(value: audioController),
-            ChangeNotifierProvider<GameController>.value(value: gameController),
-          ],
-          child: const SingleChildScrollView(
-            child: SizedBox(
-              width: 800,
-              height: 1000,
-              child: PlaySessionView(),
+        home: AudioControllerProvider(
+          audioController: audioController..initialize(),
+          child: GameControllerProvider(
+            gameController: gameController,
+            child: const SingleChildScrollView(
+              child: SizedBox(
+                width: 800,
+                height: 1000,
+                child: PlaySessionView(),
+              ),
             ),
           ),
         ),

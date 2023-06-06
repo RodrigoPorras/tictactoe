@@ -73,7 +73,7 @@ class AudioController {
   Future<void> _playFirstSongInPlaylist() async {
     await _musicPlayer.play(
       AssetSource('music/${_playlist.first.filename}'),
-      volume: 0.4,
+      volume: 0.7,
     );
   }
 

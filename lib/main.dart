@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tictactoe/src/config/audio/audio_controller.dart';
 import 'package:tictactoe/src/config/router/app_router.dart';
 import 'package:tictactoe/src/res/palette.dart';
 
+import 'src/config/audio/components/audio_controller_widget.dart';
 import 'src/modules/play_session/controllers/game_controller.dart';
+import 'src/modules/play_session/providers/game_controller_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,31 +16,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider(
-          lazy: false,
-          create: (context) => AudioController()..initialize(),
-          dispose: (context, audio) => audio.dispose(),
-        ),
-        ChangeNotifierProvider(create: (context) => GameController()),
-      ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'Tic Tac Toe',
-        theme: ThemeData.from(
-          colorScheme: const ColorScheme.light().copyWith(
-            primary: palette.primary,
-            background: palette.backgroundMain,
-            onPrimary: palette.onPrimary,
+    return AudioControllerWidget(
+      child: GameControllerProvider(
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'Tic Tac Toe',
+          theme: ThemeData.from(
+            colorScheme: const ColorScheme.light().copyWith(
+              primary: palette.primary,
+              background: palette.backgroundMain,
+              onPrimary: palette.onPrimary,
+            ),
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(color: palette.bodyMedium),
+            ),
           ),
-          textTheme: TextTheme(
-            bodyMedium: TextStyle(color: palette.bodyMedium),
-          ),
+          routeInformationProvider: appRouter.router.routeInformationProvider,
+          routeInformationParser: appRouter.router.routeInformationParser,
+          routerDelegate: appRouter.router.routerDelegate,
         ),
-        routeInformationProvider: appRouter.router.routeInformationProvider,
-        routeInformationParser: appRouter.router.routeInformationParser,
-        routerDelegate: appRouter.router.routerDelegate,
       ),
     );
   }
