@@ -10,7 +10,7 @@ class BoardWidget extends StatelessWidget {
 
   final double padding = 52.0;
 
-  final double lineSize = 10.0;
+  final double lineSize = 8.0;
 
   final Function(int x, int y) onSquareSelected;
 
